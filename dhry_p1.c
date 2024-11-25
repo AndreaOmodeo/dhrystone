@@ -44,30 +44,41 @@ Enumeration     Func_1 ();
 #endif
 
 /* variables for time measurement: */
+/* Measurements should last at least 2 seconds */
+#define Too_Small_Time 2
 
 #ifdef TIMES
 struct tms      time_info;
 //extern  int     times ();
                 /* see library function "times" */
+uint64_t        Begin_Time,
+                End_Time,
+                User_Time;
 #endif
+
 #ifdef TIME
 #include <stdint.h>
 //extern long     time();
                 /* see library function "time"  */
 uint64_t micro_time() { struct timeval tv; gettimeofday(&tv, NULL); return tv.tv_sec * 1000000 + tv.tv_usec; }
-#endif
-
-#define Too_Small_Time 2
-                /* Measurements should last at least 2 seconds */
-#ifdef SUPERTIMER
-LARGE_INTEGER           Begin_Time,End_Time,User_Time;
-#else
 uint64_t        Begin_Time,
                 End_Time,
                 User_Time;
 #endif
-double           Microseconds,
-                Dhrystones_Per_Second;
+
+#ifdef SUPERTIMER
+LARGE_INTEGER           Begin_Time,End_Time,User_Time;
+#endif
+
+#ifdef CLOCK_GETTIME_CPU
+#include <time.h>
+#include <stdint.h>
+
+struct timespec Begin_Time, End_Time;
+uint64_t User_Time;
+#endif
+
+double           Microseconds, Dhrystones_Per_Second;
 
 /* end of variables for time measurement */
 
@@ -147,6 +158,10 @@ main ()
 #ifdef SUPERTIMER
   QueryPerformanceCounter( &Begin_Time );
 #endif
+#ifdef CLOCK_GETTIME_CPU
+  printf("Using CLOCK_PROCESS_CPUTIME\n");
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &Begin_Time);
+#endif
 
   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
   {
@@ -201,15 +216,24 @@ main ()
 #ifdef TIMES
   times (&time_info);
   End_Time = (long) time_info.tms_utime;
+  User_Time= End_Time- Begin_Time;
 #endif
 #ifdef TIME
   End_Time = micro_time();
+  User_Time= End_Time- Begin_Time;
 #endif
 #ifdef MSCTIME
   End_Time = GetTickCount();
+  User_Time= End_Time- Begin_Time;
 #endif
 #ifdef SUPERTIMER
   QueryPerformanceCounter( &End_Time );
+  User_Time= End_Time- Begin_Time;
+#endif
+#ifdef CLOCK_GETTIME_CPU
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &End_Time);
+  User_Time = (End_Time.tv_sec - Begin_Time.tv_sec) * 1000000000ULL + 
+              (End_Time.tv_nsec - Begin_Time.tv_nsec);
 #endif
 
   printf ("Execution ends\n");
@@ -265,11 +289,6 @@ main ()
   printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
   printf ("\n");
 
-#ifdef SUPERTIMER
-  User_Time.QuadPart = End_Time.QuadPart - Begin_Time.QuadPart;
-#else
-  User_Time= End_Time- Begin_Time;
-
   if (User_Time/1.e6 < Too_Small_Time)
   {
     printf ("Measured time too small to obtain meaningful results\n");
@@ -277,8 +296,7 @@ main ()
     printf ("\n");
   }
   else
-#endif
-  {
+
 #ifdef TIME
     Microseconds = (double) User_Time  / (double) Number_Of_Runs;
     printf("%ld microseconds\n", User_Time);
@@ -303,12 +321,15 @@ main ()
 	Microseconds = secs * (1000000.0f/ (double)Number_Of_Runs);
 	Dhrystones_Per_Second = Number_Of_Runs /secs;
 #endif
+#ifdef CLOCK_GETTIME_CPU
+  Microseconds = (double)User_Time / 1000.0 / Number_Of_Runs;
+  Dhrystones_Per_Second = (double)Number_Of_Runs / (User_Time / 1000000000.0);
+#endif
     printf ("Microseconds for one run through Dhrystone: ");
     printf ("%6.3f \n", Microseconds);
     printf ("Dhrystones per Second:                      ");
     printf ("%6.1f \n", Dhrystones_Per_Second);
     printf ("\n");
-  }
   
 }
 

@@ -341,7 +341,7 @@
 
 /* Compiler and system dependent definitions: */
 
-#define TIME // Standard 
+//#define TIME // Standard 
 //#define SUPERTIMER // Basato su QueryPerformanceInfo
 //#define MSCTIME // Funzioni Microsoft per Win CE
 
