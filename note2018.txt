@@ -1,0 +1,6 @@
+## migliore command line per il build sotto linux
+gcc -DTIME -O4  -o dhry DHRY_P1.c DHRY_P2.c
+
+
+## sotto MSC
+cl /DSUPERTIMER /Ox /GL /favor:INTEL64 DHRY_P1.C DHRY_P2.C

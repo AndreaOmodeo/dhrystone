@@ -67,7 +67,10 @@ uint64_t        Begin_Time,
 #endif
 
 #ifdef SUPERTIMER
-LARGE_INTEGER           Begin_Time,End_Time,User_Time;
+LARGE_INTEGER           Begin_Time,End_Time;
+LONGLONG User_Time;
+LARGE_INTEGER frq;
+double secs;
 #endif
 
 #ifdef CLOCK_GETTIME_CPU
@@ -156,6 +159,7 @@ main ()
   Begin_Time = GetTickCount();
 #endif
 #ifdef SUPERTIMER
+  printf("Using QueryPerformanceCounter\n");
   QueryPerformanceCounter( &Begin_Time );
 #endif
 #ifdef CLOCK_GETTIME_CPU
@@ -228,7 +232,7 @@ main ()
 #endif
 #ifdef SUPERTIMER
   QueryPerformanceCounter( &End_Time );
-  User_Time= End_Time- Begin_Time;
+  User_Time = End_Time.QuadPart - Begin_Time.QuadPart;
 #endif
 #ifdef CLOCK_GETTIME_CPU
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &End_Time);
@@ -314,10 +318,8 @@ main ()
                         / (double) User_Time;
 #endif
 #ifdef SUPERTIMER
-	LARGE_INTEGER frq;
-	double secs;
 	QueryPerformanceFrequency( &frq );
-	secs = User_Time.QuadPart /(double) frq.QuadPart;
+	secs = User_Time /(double) frq.QuadPart;
 	Microseconds = secs * (1000000.0f/ (double)Number_Of_Runs);
 	Dhrystones_Per_Second = Number_Of_Runs /secs;
 #endif
