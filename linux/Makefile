@@ -1,6 +1,6 @@
 # Dhrystone Benchmark Makefile
 CC = gcc
-CFLAGS = -w -DCLOCK_GETTIME_CPU
+CFLAGS = -w -DCLOCK_GETTIME_CPU -march=native -mtune=native
 
 # Source files
 SRCS = ../dhry_p1.c ../dhry_p2.c
