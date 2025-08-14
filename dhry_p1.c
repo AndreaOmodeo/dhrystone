@@ -31,7 +31,6 @@ char            Ch_1_Glob,
 int             Arr_1_Glob [50];
 int             Arr_2_Glob [50] [50];
 
-Enumeration     Func_1 ();
   /* forward declaration necessary since Enumeration may not simply be int */
 
 #ifndef REG
@@ -86,7 +85,7 @@ double           Microseconds, Dhrystones_Per_Second;
 /* end of variables for time measurement */
 
 
-main ()
+int main ()
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -336,7 +335,24 @@ main ()
 }
 
 
-Proc_1 (Ptr_Val_Par)
+int Proc_3 (Ptr_Ref_Par)
+/**********************/
+    /* executed once */
+    /* Ptr_Ref_Par becomes Ptr_Glob */
+
+Rec_Pointer *Ptr_Ref_Par;
+
+{
+  if (Ptr_Glob != Null)
+    /* then, executed */
+    *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
+  else /* not executed */
+    Int_Glob = 100;
+  Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
+} /* Proc_3 */
+
+
+int Proc_1 (Ptr_Val_Par)
 /**********************/
 
 REG Rec_Pointer Ptr_Val_Par;
@@ -370,7 +386,7 @@ REG Rec_Pointer Ptr_Val_Par;
 } /* Proc_1 */
 
 
-Proc_2 (Int_Par_Ref)
+int Proc_2 (Int_Par_Ref)
 /******************/
     /* executed once */
     /* *Int_Par_Ref == 1, becomes 4 */
@@ -393,25 +409,9 @@ One_Fifty   *Int_Par_Ref;
 } /* Proc_2 */
 
 
-Proc_3 (Ptr_Ref_Par)
-/**********************/
-    /* executed once */
-    /* Ptr_Ref_Par becomes Ptr_Glob */
-
-Rec_Pointer *Ptr_Ref_Par;
-
-{
-  if (Ptr_Glob != Null)
-    /* then, executed */
-    *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
-  else /* not executed */
-    Int_Glob = 100;
-  Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
-} /* Proc_3 */
 
 
-
-Proc_4 () /* without parameters */
+int Proc_4 () /* without parameters */
 /*******/
     /* executed once */
 {
@@ -423,7 +423,7 @@ Proc_4 () /* without parameters */
 } /* Proc_4 */
 
 
-Proc_5 () /* without parameters */
+int Proc_5 () /* without parameters */
 /*******/
     /* executed once */
 {
